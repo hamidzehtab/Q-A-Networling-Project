@@ -1,0 +1,22 @@
+[
+    {
+        "type": "host",
+        "port": 8080,
+        "name": "host-1"
+    },
+    {
+        "type": "client",
+        "port": 8081,
+        "name": "user-1"
+    },
+    {
+        "type": "client",
+        "port": 8082,
+        "name": "user-2"
+    },
+    {
+        "type": "client",
+        "port": 8083,
+        "name": "user-3"
+    }
+]
