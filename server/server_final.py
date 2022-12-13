@@ -69,8 +69,8 @@ class Network:
                # return
 
     def initiate_client(self, name, args):
-        print('hello')
-        self.sock.send("game started".encode("utf-8"))
+        print('game started'.encode('utf-8'))
+        return 'game started'
 
 
 Network().listen()
