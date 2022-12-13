@@ -11,7 +11,7 @@ import json
 
 class Network:
     def __init__(self):
-        f = open('users.json')
+        f = open('../users.json')
         data = json.load(f)
         for i in data:
             if i['type'] == "host":
