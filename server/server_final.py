@@ -16,7 +16,6 @@ class Network:
         for i in data:
             if i['type'] == "host":
                 self.port = i['port']
-        super().__init__()
         self.listClients = []
         self.host = "127.0.0.1"
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -32,34 +31,46 @@ class Network:
             client.settimeout(100)
             self.listClients.append(client)
             thread_clinet = threading.Thread(
-                target=self.listenToClient, args=(client, address)
+                target=self.listen_to_client, args=(client, address)
             )
             thread_clinet.daemon = True
             thread_clinet.start()
 
-    def listenToClient(self, client, address):
+    def listen_to_client(self, client, address):
         print(f"client connected to {client}  {address}")
+        dic_fn = {
+            "start_game": lambda: self.start_game(name, args),
+            "initiate_client": lambda: self.initiate_client(name, args),
+            "checkInfoUser": lambda: self.checkInfoUser(receive_data["args"]),
+            "insertAnswer": lambda: self.insertAnswer(receive_data["args"]),
+            "getQuestions": lambda: self.getQuestions(receive_data["args"]),
+            "deleteAnswer": lambda: self.deleteAnswer(receive_data["args"]),
+            "insertUser": lambda: self.insertUser(receive_data["args"]),
+            "checkUsers": lambda: self.checkUsers(receive_data["args"]),
+            "getAnswers": lambda: self.getAnswers(receive_data["args"]),
+        }
+
         while True:
-
-            try:
-
-                recive_data = client.recv(1024).decode()
-                #logging.warning("receive data : %s | From : %s", recive_data, address)
-                #recive_data = literal_eval(recive_data)
-            except:
-
-               # logging.warning("client missing!! : [%s]", sys.exc_info())
-                client.close()
-                return
-"""
-                if recive_data["header"] in dic_fn.keys():
-                    resp = dic_fn[recive_data["header"]]()
-                    client.send(str({"resp": resp}).encode())
+            #try:
+                receive_data = client.recv(1024).decode()
+                print("receive data : %s | From : %s", receive_data, address)
+                name, method, args = receive_data.split(':')
+                print(name, method, args)
+                if method in dic_fn.keys():
+                    resp = dic_fn[method]()
+                    client.send(str(resp).encode())
 
                 else:
-                    client.send(str({"resp": []}).encode())
-"""
+                    client.send("error".encode())
 
+            #except:
+             #   logging.warning("client missing!! : [%s]", sys.exc_info())
+              #  client.close()
+               # return
+
+    def initiate_client(self, name, args):
+        print('hello')
+        self.sock.send("game started".encode("utf-8"))
 
 
 Network().listen()

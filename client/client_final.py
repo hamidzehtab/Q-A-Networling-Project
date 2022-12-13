@@ -23,18 +23,22 @@ class Network:
                 self.port = data['port']
             if not is_bound and data['type'] == 'client' and data['isUsed'] == 0:
                 is_bound = True
-
                 self.client_port = data['port']
                 self.name = data['name']
                 data['isUsed'] = 1
                 self.data[count].update(data)
                 json.dump(self.data, f)
-                print('socket chosen')
             count += 1
         self.host = "127.0.0.1"
         # self.shareData = {"Q": [], "A": []}
         f.close()
         self.connect()
+        send_message_thread = threading.Thread(target=self.send_data_to_server, args=(self.name, 'initiate_client', ''))
+        send_message_thread.daemon = True
+        send_message_thread.start()
+        while True:
+            input_data = self.listen_to_server()
+            print(input_data)
 
     def connect(self):
 
@@ -43,7 +47,6 @@ class Network:
         while True:
             try:
                 self.sock.connect((self.host, self.port))
-                print(self.port)
                 logging.warning("Connected to server")
                 break
 
@@ -55,28 +58,21 @@ class Network:
 
         while True:
             try:
-                data = self.sock.recv(409600).decode()
-
-                try:
-                    return literal_eval(data)
-
-                except:
-                    logging.warning("failed to get any data!! : %s", sys.exc_info())
-                    return False
+                return self.sock.recv(1024).decode()
             except:
 
                 logging.warning("connection refused! : [%s]", sys.exc_info())
-                f = open('../users.json', 'rw')
-                count = 0
-                for data in self.data:
-                    if data['name'] == self.name:
-                        data['isUsed'] = 0
-                        self.data[count].update(data)
-                        json.dump(self.data, f)
-                count += 1
-                self.sock.close()
-                self.connect()
+                f = open('../users.json', 'w')
+                json.dump(self.data, f)
                 return False
+
+    def send_data_to_server(self, name, subject, args=""):
+
+        try:
+            self.sock.send(f"{name}:{subject}:{args}".encode())
+        except:
+            sleep(1)
+            print("couldn't send")
 
 
 Network()
