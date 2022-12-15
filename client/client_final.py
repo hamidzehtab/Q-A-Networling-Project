@@ -9,8 +9,14 @@ from tkinter import *
 import json
 
 
-class Network:
+class Game():
+    def start_game(self):
+        pass
+
+
+class Network(Game):
     def __init__(self):
+        super().__init__()
         self.sock = None
         is_bound = False
         f = open('../users.json', 'r+')
@@ -38,7 +44,29 @@ class Network:
         send_message_thread.start()
         while True:
             input_data = self.listen_to_server()
-            print(input_data)
+            print(input_data, '\n')
+            match input_data:
+                case 'gameStarted':
+                    self.start_game()
+                    # self.send_data_to_server(self.name, 'getQuestion', '')
+                case 'question':
+                    self.question = self.listen_to_server()
+                    self.question_data = self.question.split(',')
+                    self.question = self.question_data[0]
+                    print(self.question)
+                    self.option0 = self.question_data[1]
+                    print(f'1-{self.option0}')
+                    self.option1 = self.question_data[2]
+                    print(f'2-{self.option1}')
+                    self.option2 = self.question_data[3]
+                    print(f'3-{self.option2}')
+                    self.option3 = self.question_data[4]
+                    print(f'4-{self.option3}')
+                    self.answer = self.question_data[5]
+                    self.send_data_to_server(self.name, 'getQuestion', '')
+                    #print(self.answer)
+                case _:
+                    print(f'\n input data : {input_data}  : case default nothing received')
 
     def connect(self):
 
