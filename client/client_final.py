@@ -7,9 +7,10 @@ from random import random
 from time import sleep, ctime
 from tkinter import *
 import json
+import time
 
 
-class Game():
+class Game:
     def start_game(self):
         pass
 
@@ -50,6 +51,7 @@ class Network(Game):
                     self.start_game()
                     # self.send_data_to_server(self.name, 'getQuestion', '')
                 case 'question':
+
                     self.question = self.listen_to_server()
                     self.question_data = self.question.split(',')
                     self.question = self.question_data[0]
@@ -62,9 +64,19 @@ class Network(Game):
                     print(f'3-{self.option2}')
                     self.option3 = self.question_data[4]
                     print(f'4-{self.option3}')
+                    start = time.perf_counter()
                     self.answer = self.question_data[5]
-                    self.send_data_to_server(self.name, 'getQuestion', '')
-                    #print(self.answer)
+                    client_answer = (self.answer == input())
+                    end = time.perf_counter()
+                    if (end - start) < 45:
+                        self.send_data_to_server(self.name, 'answer', client_answer)
+
+                    # print(self.answer)
+                    else:
+                        self.send_data_to_server(self.name, 'answer', 'False')
+                        print('you ran out of time!')
+
+
                 case _:
                     print(f'\n input data : {input_data}  : case default nothing received')
 
@@ -101,6 +113,7 @@ class Network(Game):
         except:
             sleep(1)
             print("couldn't send")
+
 
 
 Network()
