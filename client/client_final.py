@@ -8,6 +8,8 @@ from time import sleep, ctime
 from tkinter import *
 import json
 import time
+# from nanomsg import Socket, PAIR
+import zmq
 
 
 class Game:
@@ -17,6 +19,7 @@ class Game:
 
 class Network(Game):
     def __init__(self):
+
         super().__init__()
         self.sock = None
         is_bound = False
@@ -76,17 +79,20 @@ class Network(Game):
                         self.send_data_to_server(self.name, 'answer', 'False')
                         print('you ran out of time!')
 
-
+                case 'scoreboard':
+                    self.scoreboard = self.listen_to_server()
+                    print('scoreboard:\n', self.scoreboard)
                 case _:
                     print(f'\n input data : {input_data}  : case default nothing received')
 
     def connect(self):
-
-        self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        self.sock.bind(("127.0.0.1", self.client_port))
+        self.sock = self.context.socket(zmq.REQ)
+        # self.sock = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        self.sock.bind(f"tcp://127.0.0.1:{self.client_port}")
         while True:
             try:
-                self.sock.connect((self.host, self.port))
+                self.sock.connect(f"tcp://localhost:{self.port}")
+                #self.sock.connect((self.host, self.port))
                 logging.warning("Connected to server")
                 break
 
@@ -113,7 +119,6 @@ class Network(Game):
         except:
             sleep(1)
             print("couldn't send")
-
 
 
 Network()
