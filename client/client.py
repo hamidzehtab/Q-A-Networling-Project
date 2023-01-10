@@ -1,10 +1,13 @@
 #!/usr/bin/env python3
 """Script for Tkinter GUI quiz client."""
+import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
 import json
 from tkinter import messagebox
+
+global start
 
 
 def takeAction(msg):
@@ -44,6 +47,7 @@ def takeAction(msg):
     elif message['type'] == "scoreboard":
         infoMessage.set(message['scoreboard'])
 
+
 def receive():
     """Handles receiving of messages."""
     while True:
@@ -78,7 +82,7 @@ def sendName():
     client_socket.send(bytes(name, "utf8"))
 
 
-def sendAnswer():
+def sendAnswer(start=None):
     c1.config(state='disabled')
     c2.config(state='disabled')
     c3.config(state='disabled')
@@ -144,6 +148,7 @@ BUFSIZ = 1024
 ADDR = (HOST, PORT)
 
 client_socket = socket(AF_INET, SOCK_STREAM)
+client_socket.bind(('127.0.0.1', client_port))
 client_socket.connect(ADDR)
 
 receive_thread = Thread(target=receive)
