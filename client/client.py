@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 """Script for Tkinter GUI quiz client."""
+import threading
 import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
@@ -7,7 +8,7 @@ import tkinter
 import json
 from tkinter import messagebox
 
-global start
+start = 0
 
 
 def takeAction(msg):
@@ -44,8 +45,19 @@ def takeAction(msg):
         c3.config(state='normal')
         c4.config(state='normal')
         submit_button.config(state='normal')
+        false = [False]
+        global start_timer
+        start_timer = threading.Timer(15, sendAnswer, false)
+        start_timer.start()
     elif message['type'] == "scoreboard":
         infoMessage.set(message['scoreboard'])
+    elif message['type'] == 'info' and 'timeout' in message:
+        infoMessage.set("Please wait for the Quiz Master to start the next round.")
+        message = dict()
+        message['type'] = "answer"
+        message['answer'] = '5'
+        client_socket.send(bytes(json.dumps(message), "utf8"))
+
 
 
 def receive():
@@ -62,7 +74,7 @@ def receive():
             break
 
 
-def send(event=None):  # event is passed by binders.
+def send():  # event is passed by binders.
     """Handles sending of messages."""
     msg = quit.get()
     quit.set("")  # Clears input field.
@@ -82,7 +94,11 @@ def sendName():
     client_socket.send(bytes(name, "utf8"))
 
 
-def sendAnswer(start=None):
+def sendAnswer(time=None):
+    if time is None:
+        time = True
+    global start_timer
+    start_timer.cancel()
     c1.config(state='disabled')
     c2.config(state='disabled')
     c3.config(state='disabled')
@@ -90,7 +106,10 @@ def sendAnswer(start=None):
     submit_button.config(state='disabled')
     message = dict()
     message['type'] = "answer"
-    message['answer'] = str(correct_option.get())
+    if time:
+        message['answer'] = str(correct_option.get())
+    else:
+        message['answer'] = '5'
     client_socket.send(bytes(json.dumps(message), "utf8"))
 
 
@@ -146,7 +165,7 @@ HOST = "127.0.0.1"
 f.close()
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
-
+start_timer = None
 client_socket = socket(AF_INET, SOCK_STREAM)
 client_socket.bind(('127.0.0.1', client_port))
 client_socket.connect(ADDR)

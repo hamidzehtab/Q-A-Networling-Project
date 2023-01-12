@@ -91,8 +91,9 @@ class QuizMaster(threading.Thread):
         msg = {'type': 'scoreboard', 'scoreboard': str(scoreboard)}
         broadcast(msg=json.dumps(msg))
 
-    def time_finished(self):
-        msg = {'type': 'timeout'}
+    @staticmethod
+    def time_finished():
+        msg = {'type': 'info', 'timeout': True}
         broadcast(msg=json.dumps(msg))
         print("yo")
 
@@ -118,7 +119,6 @@ class QuizMaster(threading.Thread):
                 "text": q['options'][3],
                 # "value": "True" if self.correct_option == 4 else "False"
             })
-            self.start_timer = time.perf_counter()
             broadcast(msg=json.dumps(msg))
         else:
             print('not enough participants')
@@ -242,8 +242,8 @@ def handle_client(client):  # Takes client socket as argument.
                 msg = json.loads(msg)
                 if msg['type'] == "answer":
                     client.send(bytes(buildInfo("answer", str(quizMaster.checkAnswer(msg["answer"], name))), "utf8"))
-                    #num_of_answered += 1
-                    #if num_of_answered % 3 == 0:
+                    # num_of_answered += 1
+                    # if num_of_answered % 3 == 0:
                     QuizMaster.send_scoreboard()
             except Exception as e:
                 print("Incorrect Payload:", msg)
@@ -287,7 +287,7 @@ questions = []
 current_question = 0
 read_questions()
 scoreboard = {}
-
+start = 0
 if __name__ == "__main__":
     SERVER.listen(5)
     print("Waiting for connection...")
