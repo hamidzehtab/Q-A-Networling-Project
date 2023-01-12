@@ -59,6 +59,11 @@ def takeAction(msg):
         message['type'] = "answer"
         message['answer'] = '5'
         client_socket.send(bytes(json.dumps(message), "utf8"))
+    elif message['type'] == 'message':
+        textCons.config(state=NORMAL)
+        textCons.insert(END,message['content'] + "\n\n")
+        textCons.config(state=DISABLED)
+        textCons.see(END)
 
 
 def receive():
@@ -113,18 +118,21 @@ def sendAnswer(time=None):
         message['answer'] = '5'
     client_socket.send(bytes(json.dumps(message), "utf8"))
 
+
 def sendButton(msg):
     textCons.config(state=DISABLED)
     entryMsg.delete(0, END)
-    snd = threading.Thread(target=sendMessage, args=msg)
+    snd = threading.Thread(target=sendMessage, args=[msg])
     snd.start()
+
 
 def sendMessage(msg):
     textCons.config(state=DISABLED)
-    while True:
-        message = f"{name}: {msg}"
-        client_socket.send(message.encode("utf-8"))
-        break
+    message = dict()
+    message['type'] = "message"
+    message['content'] = f'{name}: {msg}'
+    client_socket.send(bytes(json.dumps(message), "utf8"))
+
 
 is_bound = False
 f = open('../users.json', 'r+')
@@ -185,7 +193,6 @@ frame2.configure(width=470, height=550)
 labelHead = Label(frame2,
                   bg="#17202A",
                   fg="#EAECEE",
-                  text=name,
                   font="Helvetica 13 bold",
                   pady=5)
 

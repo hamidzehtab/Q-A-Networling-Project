@@ -242,9 +242,12 @@ def handle_client(client):  # Takes client socket as argument.
                 msg = json.loads(msg)
                 if msg['type'] == "answer":
                     client.send(bytes(buildInfo("answer", str(quizMaster.checkAnswer(msg["answer"], name))), "utf8"))
-                    # num_of_answered += 1
-                    # if num_of_answered % 3 == 0:
                     QuizMaster.send_scoreboard()
+                if msg['type'] == 'message':
+                    message = dict()
+                    message['type'] = 'message'
+                    message['content'] = msg['content']
+                    broadcast(msg=json.dumps(message))
             except Exception as e:
                 print("Incorrect Payload:", msg)
                 on_closing()
