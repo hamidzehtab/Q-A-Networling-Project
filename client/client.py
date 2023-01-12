@@ -1,10 +1,16 @@
 #!/usr/bin/env python3
 """Script for Tkinter GUI quiz client."""
+import threading
+import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
 import tkinter
+from tkinter import ttk, font
+from tkinter import *
 import json
 from tkinter import messagebox
+
+start = 0
 
 
 def takeAction(msg):
@@ -41,8 +47,24 @@ def takeAction(msg):
         c3.config(state='normal')
         c4.config(state='normal')
         submit_button.config(state='normal')
+        false = [False]
+        global start_timer
+        start_timer = threading.Timer(15, sendAnswer, false)
+        start_timer.start()
     elif message['type'] == "scoreboard":
         infoMessage.set(message['scoreboard'])
+    elif message['type'] == 'info' and 'timeout' in message:
+        infoMessage.set("Please wait for the Quiz Master to start the next round.")
+        message = dict()
+        message['type'] = "answer"
+        message['answer'] = '5'
+        client_socket.send(bytes(json.dumps(message), "utf8"))
+    elif message['type'] == 'message':
+        textCons.config(state=NORMAL)
+        textCons.insert(END,message['content'] + "\n\n")
+        textCons.config(state=DISABLED)
+        textCons.see(END)
+
 
 def receive():
     """Handles receiving of messages."""
@@ -58,7 +80,7 @@ def receive():
             break
 
 
-def send(event=None):  # event is passed by binders.
+def send():  # event is passed by binders.
     """Handles sending of messages."""
     msg = quit.get()
     quit.set("")  # Clears input field.
@@ -78,7 +100,11 @@ def sendName():
     client_socket.send(bytes(name, "utf8"))
 
 
-def sendAnswer():
+def sendAnswer(time=None):
+    if time is None:
+        time = True
+    global start_timer
+    start_timer.cancel()
     c1.config(state='disabled')
     c2.config(state='disabled')
     c3.config(state='disabled')
@@ -86,7 +112,25 @@ def sendAnswer():
     submit_button.config(state='disabled')
     message = dict()
     message['type'] = "answer"
-    message['answer'] = str(correct_option.get())
+    if time:
+        message['answer'] = str(correct_option.get())
+    else:
+        message['answer'] = '5'
+    client_socket.send(bytes(json.dumps(message), "utf8"))
+
+
+def sendButton(msg):
+    textCons.config(state=DISABLED)
+    entryMsg.delete(0, END)
+    snd = threading.Thread(target=sendMessage, args=[msg])
+    snd.start()
+
+
+def sendMessage(msg):
+    textCons.config(state=DISABLED)
+    message = dict()
+    message['type'] = "message"
+    message['content'] = f'{name}: {msg}'
     client_socket.send(bytes(json.dumps(message), "utf8"))
 
 
@@ -110,12 +154,18 @@ for user in data:
 
 top = tkinter.Tk()
 top.title("Player - P2P Quiz Application")
-l1 = tkinter.Label(top, text="Quiz Master", font=("Arial Bold", 25))
+notebook = ttk.Notebook(top)
+notebook.pack(pady=10, expand=True)
+frame1 = ttk.Frame(notebook)
+frame1.pack(fill='both', expand=True)
+frame2 = ttk.Frame(notebook)
+frame2.pack(fill='both', expand=True)
+l1 = tkinter.Label(frame1, text="Quiz Master", font=("Arial Bold", 25))
 l1.grid(column=0, row=0)
-player_name = tkinter.Label(top)
+player_name = tkinter.Label(frame1)
 infoMessage = tkinter.StringVar()
 infoMessage.set("Enter your name below to get started.")
-infoLabel = tkinter.Label(top, textvariable=infoMessage)
+infoLabel = tkinter.Label(frame1, textvariable=infoMessage)
 infoLabel.grid(column=0, row=1)
 quit = tkinter.StringVar()
 question = tkinter.StringVar()
@@ -124,17 +174,101 @@ choice2 = tkinter.StringVar()
 choice3 = tkinter.StringVar()
 choice4 = tkinter.StringVar()
 correct_option = tkinter.IntVar()
-quesLabel = tkinter.Label(top, textvariable=question)
+quesLabel = tkinter.Label(frame1, textvariable=question)
 player_name.grid(column=0, row=2, columnspan=3, sticky=tkinter.W)
-submit_name = tkinter.Button(top, text='Submit Name', command=sendName)
+submit_name = tkinter.Button(frame1, text='Submit Name', command=sendName)
 submit_name.grid(column=1, row=2, columnspan=3, sticky=tkinter.W)
-c1 = tkinter.Radiobutton(top, textvariable=choice1, variable=correct_option, value=1)
-c2 = tkinter.Radiobutton(top, textvariable=choice2, variable=correct_option, value=2)
-c3 = tkinter.Radiobutton(top, textvariable=choice3, variable=correct_option, value=3)
-c4 = tkinter.Radiobutton(top, textvariable=choice4, variable=correct_option, value=4)
-submit_button = tkinter.Button(top, text='Submit Answer', command=sendAnswer)
+c1 = tkinter.Radiobutton(frame1, textvariable=choice1, variable=correct_option, value=1)
+c2 = tkinter.Radiobutton(frame1, textvariable=choice2, variable=correct_option, value=2)
+c3 = tkinter.Radiobutton(frame1, textvariable=choice3, variable=correct_option, value=3)
+c4 = tkinter.Radiobutton(frame1, textvariable=choice4, variable=correct_option, value=4)
+submit_button = tkinter.Button(frame1, text='Submit Answer', command=sendAnswer)
 top.protocol("WM_DELETE_WINDOW", on_closing)
 
+# ----the chat gui----
+
+
+# to show chat window
+frame2.configure(width=470, height=550)
+labelHead = Label(frame2,
+                  bg="#17202A",
+                  fg="#EAECEE",
+                  text=name,
+                  font="Helvetica 13 bold",
+                  pady=5)
+
+labelHead.place(relwidth=1)
+line = Label(frame2,
+             width=450,
+             bg="#ABB2B9")
+
+line.place(relwidth=1,
+           rely=0.07,
+           relheight=0.012)
+
+textCons = Text(frame2,
+                width=20,
+                height=2,
+                bg="#17202A",
+                fg="#EAECEE",
+                font="Helvetica 14",
+                padx=5,
+                pady=5)
+
+textCons.place(relheight=0.745,
+               relwidth=1,
+               rely=0.08)
+
+labelBottom = Label(frame2,
+                    bg="#ABB2B9",
+                    height=80)
+
+labelBottom.place(relwidth=1,
+                  rely=0.825)
+
+entryMsg = Entry(labelBottom,
+                 bg="#2C3E50",
+                 fg="#EAECEE",
+                 font="Helvetica 13")
+
+# place the given widget
+# into the gui window
+entryMsg.place(relwidth=0.74,
+               relheight=0.06,
+               rely=0.008,
+               relx=0.011)
+
+entryMsg.focus()
+
+# create a Send Button
+buttonMsg = Button(labelBottom,
+                   text="Send",
+                   font="Helvetica 10 bold",
+                   width=20,
+                   bg="#ABB2B9",
+                   command=lambda: sendButton(entryMsg.get()))
+
+buttonMsg.place(relx=0.77,
+                rely=0.008,
+                relheight=0.06,
+                relwidth=0.22)
+
+textCons.config(cursor="arrow")
+
+# create a scroll bar
+scrollbar = tkinter.Scrollbar(textCons)
+
+# place the scroll bar
+# into the gui window
+scrollbar.place(relheight=1,
+                relx=0.974)
+
+scrollbar.config(command=textCons.yview)
+
+textCons.config(state=DISABLED)
+
+notebook.add(frame1, text='Main Game')
+notebook.add(frame2, text='Chatroom')
 # ----Now comes the sockets part----
 
 
@@ -142,8 +276,9 @@ HOST = "127.0.0.1"
 f.close()
 BUFSIZ = 1024
 ADDR = (HOST, PORT)
-
+start_timer = None
 client_socket = socket(AF_INET, SOCK_STREAM)
+client_socket.bind(('127.0.0.1', client_port))
 client_socket.connect(ADDR)
 
 receive_thread = Thread(target=receive)
