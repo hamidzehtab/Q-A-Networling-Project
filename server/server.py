@@ -10,6 +10,7 @@ from tkinter import messagebox
 import threading
 import sys
 
+
 def buildInfo(msgKey, msgValue):
     msg = {
         "type": "info",
@@ -56,6 +57,7 @@ class QuizMaster(threading.Thread):
         self.start_timer = None
         self.end_timer = None
         self.num_of_answered = 0
+
     def callback(self):
         self.root.destroy()
         print("Inside callback.")
@@ -84,7 +86,6 @@ class QuizMaster(threading.Thread):
             return True
         else:
             return False
-
 
     @staticmethod
     def send_scoreboard():
@@ -143,73 +144,12 @@ class QuizMaster(threading.Thread):
         l3.grid(column=0, row=2, sticky=tk.W)
         l4 = tk.Label(self.root, text="PORT: " + str(self.PORT))
         l4.grid(column=0, row=3, sticky=tk.W)
-        '''l5 = tk.Label(self.root, text="Use the below form to generate your question.")
-        l5.grid(column=0, row=5, sticky=tk.W)
-
-       self.question = tk.Entry(self.root)
-        self.question.grid(column=0, row=6, columnspan=3, sticky=tk.W)
-
-        l6 = tk.Label(self.root, text="Choice 1: ")
-        l6.grid(column=0, row=7, sticky=tk.W)
-        self.choice1 = tk.Entry(self.root)
-        self.choice1.grid(column=1, row=7, columnspan=3, sticky=tk.W)
-        self.correct_option = tk.IntVar()
-        self.c1 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=1)
-        self.c1.grid(column=2, row=7)
-
-        l7 = tk.Label(self.root, text="Choice 2: ")
-        l7.grid(column=0, row=8, sticky=tk.W)
-        self.choice2 = tk.Entry(self.root)
-        self.choice2.grid(column=1, row=8, columnspan=3, sticky=tk.W)
-        self.c2 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=2)
-        self.c2.grid(column=2, row=8)
-
-        l8 = tk.Label(self.root, text="Choice 3: ")
-        l8.grid(column=0, row=9, sticky=tk.W)
-        self.choice3 = tk.Entry(self.root)
-        self.choice3.grid(column=1, row=9, columnspan=3, sticky=tk.W)
-        self.c3 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=3)
-        self.c3.grid(column=2, row=9)
-
-        l9 = tk.Label(self.root, text="Choice 4: ")
-        l9.grid(column=0, row=10, sticky=tk.W)
-        self.choice4 = tk.Entry(self.root)
-        self.choice4.grid(column=1, row=10, columnspan=3, sticky=tk.W)
-        self.c4 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=4)
-        self.c4.grid(column=2, row=10)'''
 
         submit_question = tk.Button(self.root, text='Send Question', command=self.sendQuestion)
         submit_question.grid(column=1, row=6, columnspan=3, sticky=tk.W)
         print("Hi here.")
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
         self.root.mainloop()
-
-
-"""
-Payload:
-{
-    "type": "question",
-    "question": "How is the best?",
-    "choices": [
-        {
-            "text": "me?",
-            "value": false
-        },
-        {
-            "text": "ME?",
-            "value": false
-        },
-        {
-            "text": "ME",
-            "value": false
-        },
-        {
-            "text": "Me.",
-            "value": true
-        }
-    ]
-}
-"""
 
 
 def accept_incoming_connections():
@@ -220,7 +160,6 @@ def accept_incoming_connections():
         client.send(bytes(buildInfo("greeting", "Greetings player! Now type your name and press enter!"), "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
-
 
 
 def handle_client(client):  # Takes client socket as argument.
@@ -247,6 +186,7 @@ def handle_client(client):  # Takes client socket as argument.
                     message = dict()
                     message['type'] = 'message'
                     message['content'] = msg['content']
+                    print(message['content'])
                     broadcast(msg=json.dumps(message))
             except Exception as e:
                 print("Incorrect Payload:", msg)
