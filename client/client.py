@@ -193,6 +193,7 @@ frame2.configure(width=470, height=550)
 labelHead = Label(frame2,
                   bg="#17202A",
                   fg="#EAECEE",
+                  text=name,
                   font="Helvetica 13 bold",
                   pady=5)
 
