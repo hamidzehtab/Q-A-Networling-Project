@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-
 import threading
 import time
 from socket import AF_INET, socket, SOCK_STREAM

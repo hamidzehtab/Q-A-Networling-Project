@@ -1,4 +1,3 @@
-#!/usr/bin/env python3
 import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
@@ -204,7 +203,7 @@ addresses = {}
 
 
 def read_questions():
-    f = open("../questions.json")
+    f = open("../questions.json",encoding="utf8")
     data_json = json.load(f)
     for question in data_json:
         questions.append(question)
