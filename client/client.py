@@ -1,5 +1,8 @@
+<<<<<<< Updated upstream
 #!/usr/bin/env python3
 """Script for Tkinter GUI quiz client."""
+=======
+>>>>>>> Stashed changes
 import threading
 import time
 from socket import AF_INET, socket, SOCK_STREAM
