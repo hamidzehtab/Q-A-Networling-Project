@@ -1,5 +1,4 @@
 #!/usr/bin/env python3
-"""Server for multithreaded (asynchronous) quiz application."""
 import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
