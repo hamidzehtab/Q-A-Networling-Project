@@ -15,7 +15,7 @@ def takeAction(msg):
     message = json.loads(msg)
     if message['type'] == "info" and "welcomeMsg" in message:
         print("Got welcome message.")
-        infoMessage.set("Please wait for the Quiz Master to start.")
+        infoMessage.set("Please wait for the mathc to start.")
         player_name.grid_forget()
         submit_name.grid_forget()
 
@@ -25,7 +25,7 @@ def takeAction(msg):
             messagebox.showinfo("Yay", "You got the correct answer!")
         else:
             messagebox.showerror("Oops!", "You got the wrong answer!")
-        infoMessage.set("Please wait for the Quiz Master to start the next round.")
+        infoMessage.set("Please wait for the Quiz mathc to start the next round.")
 
     elif message['type'] == "question":
         infoMessage.set("Select the answer below and click the button.")
@@ -52,7 +52,7 @@ def takeAction(msg):
     elif message['type'] == "scoreboard":
         infoMessage.set(message['scoreboard'])
     elif message['type'] == 'info' and 'timeout' in message:
-        infoMessage.set("Please wait for the Quiz Master to start the next round.")
+        infoMessage.set("Please wait for the match to start the next round.")
         message = dict()
         message['type'] = "answer"
         message['answer'] = '5'
@@ -158,7 +158,7 @@ frame1 = ttk.Frame(notebook)
 frame1.pack(fill='both', expand=True)
 frame2 = ttk.Frame(notebook)
 frame2.pack(fill='both', expand=True)
-l1 = tkinter.Label(frame1, text="Quiz Master", font=("Arial Bold", 25))
+l1 = tkinter.Label(frame1, text="CN project", font=("Arial Bold", 25))
 l1.grid(column=0, row=0)
 player_name = tkinter.Label(frame1)
 infoMessage = tkinter.StringVar()
