@@ -125,13 +125,14 @@ class QuizMaster(threading.Thread):
     def run(self):
         self.root = tk.Tk()
         self.clients_string = tk.StringVar()
-        self.root.title("Network Quiz Project")
-        l1 = tk.Label(self.root, text="Hamid Zehtab", font=("Arial Bold", 25))
+        self.root.title("CN Project")
+        l1 = tk.Label(self.root, text="CN Quiz Project", font=("Arial Bold", 25))
         l1.grid(column=0, row=0)
         l2 = tk.Label(self.root,
-                      text="Welcome to the Quiz Master, master!\nYou can define a question, its options, and only one "
-                           "can be correct.\nThen watch your friends try answering them.\nSee who gets most of them "
-                           "right!",
+                      text="Welcome to our CN quiz project, master!\nThere is a list of question, its options, and only one "
+                           "can be correct.\nThen watch your friends try answering them.See who gets most of them Right \n"
+                            "Developed By Hamid.R Zehtab and Ali.M Tabatabaei"
+                           " \n",
                       anchor="w")
         l2.grid(column=0, row=1, sticky=tk.W)
         clients_info = tk.Label(self.root, text="Active Players:")
