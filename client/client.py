@@ -15,7 +15,7 @@ def takeAction(msg):
     message = json.loads(msg)
     if message['type'] == "info" and "welcomeMsg" in message:
         print("Got welcome message.")
-        infoMessage.set("Please wait for the mathc to start.")
+        infoMessage.set("Please wait for the match to start.")
         player_name.grid_forget()
         submit_name.grid_forget()
 
