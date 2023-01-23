@@ -125,8 +125,8 @@ class QuizMaster(threading.Thread):
     def run(self):
         self.root = tk.Tk()
         self.clients_string = tk.StringVar()
-        self.root.title("Quiz Master")
-        l1 = tk.Label(self.root, text="Quiz Master", font=("Arial Bold", 25))
+        self.root.title("Network Quiz Project")
+        l1 = tk.Label(self.root, text="Hamid Zehtab", font=("Arial Bold", 25))
         l1.grid(column=0, row=0)
         l2 = tk.Label(self.root,
                       text="Welcome to the Quiz Master, master!\nYou can define a question, its options, and only one "
