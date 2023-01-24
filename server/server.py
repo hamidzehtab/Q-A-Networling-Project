@@ -114,16 +114,12 @@ class QuizMaster(threading.Thread):
                 "text": q['options'][2],
                 # "value": "True" if self.correct_option == 3 else "False"
             })
-            if len(q['options']) == 4:
-                msg['choices'].append({
-                    "text": q['options'][3],
-                    # "value": "True" if self.correct_option == 4 else "False"
-                })
-            else:
-                msg['choices'].append({
-                    "text": "this a three choice question",
-                    # "value": "True" if self.correct_option == 4 else "False"
-                })
+
+            msg['choices'].append({
+                 "text": q['options'][3],
+                  # "value": "True" if self.correct_option == 4 else "False"
+            })
+
             broadcast(msg=json.dumps(msg))
         else:
             print('not enough participants')
@@ -139,7 +135,7 @@ class QuizMaster(threading.Thread):
                            "and only one"
                            "can be correct.\nThen watch your friends try answering them.See who gets most of them "
                            "Right \n"
-                            "Developed By Hamid.R Zehtab and Ali.M Tabatabaei"
+                           "Developed By Hamid.R Zehtab and Ali.M Tabatabaei"
                            " \n",
                       anchor="w")
         l2.grid(column=0, row=1, sticky=tk.W)
@@ -212,7 +208,7 @@ addresses = {}
 
 
 def read_questions():
-    f = open("../questions.json",encoding="utf8")
+    f = open("../questions.json", encoding="utf8")
     data_json = json.load(f)
     for question in data_json:
         questions.append(question)
