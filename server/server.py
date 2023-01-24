@@ -100,7 +100,7 @@ class QuizMaster(threading.Thread):
 
     def sendQuestion(self):
 
-        if len(clients) == 3:
+        if len(clients) >= 3:
             q = questions.pop()
             self.correct_option = q['answer']
             msg = {"type": "question", "question": q['question'], 'choices': list()}
