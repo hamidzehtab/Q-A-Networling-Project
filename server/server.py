@@ -1,5 +1,3 @@
-#!/usr/bin/env python3
-"""Server for multithreaded (asynchronous) quiz application."""
 import time
 from socket import AF_INET, socket, SOCK_STREAM
 from threading import Thread
@@ -9,6 +7,7 @@ import tkinter as tk
 from tkinter import messagebox
 import threading
 import sys
+
 
 def buildInfo(msgKey, msgValue):
     msg = {
@@ -56,6 +55,7 @@ class QuizMaster(threading.Thread):
         self.start_timer = None
         self.end_timer = None
         self.num_of_answered = 0
+
     def callback(self):
         self.root.destroy()
         print("Inside callback.")
@@ -85,20 +85,20 @@ class QuizMaster(threading.Thread):
         else:
             return False
 
-
     @staticmethod
     def send_scoreboard():
         msg = {'type': 'scoreboard', 'scoreboard': str(scoreboard)}
         broadcast(msg=json.dumps(msg))
 
-    def time_finished(self):
-        msg = {'type': 'timeout'}
+    @staticmethod
+    def time_finished():
+        msg = {'type': 'info', 'timeout': True}
         broadcast(msg=json.dumps(msg))
         print("yo")
 
     def sendQuestion(self):
 
-        if len(clients) == 3:
+        if len(clients) >= 3:
             q = questions.pop()
             self.correct_option = q['answer']
             msg = {"type": "question", "question": q['question'], 'choices': list()}
@@ -118,7 +118,6 @@ class QuizMaster(threading.Thread):
                 "text": q['options'][3],
                 # "value": "True" if self.correct_option == 4 else "False"
             })
-            self.start_timer = time.perf_counter()
             broadcast(msg=json.dumps(msg))
         else:
             print('not enough participants')
@@ -126,13 +125,14 @@ class QuizMaster(threading.Thread):
     def run(self):
         self.root = tk.Tk()
         self.clients_string = tk.StringVar()
-        self.root.title("Quiz Master")
-        l1 = tk.Label(self.root, text="Quiz Master", font=("Arial Bold", 25))
+        self.root.title("CN Project")
+        l1 = tk.Label(self.root, text="CN Quiz Project", font=("Arial Bold", 25))
         l1.grid(column=0, row=0)
         l2 = tk.Label(self.root,
-                      text="Welcome to the Quiz Master, master!\nYou can define a question, its options, and only one "
-                           "can be correct.\nThen watch your friends try answering them.\nSee who gets most of them "
-                           "right!",
+                      text="Welcome to our CN quiz project, master!\nThere is a list of question, its options, and only one "
+                           "can be correct.\nThen watch your friends try answering them.See who gets most of them Right \n"
+                            "Developed By Hamid.R Zehtab and Ali.M Tabatabaei"
+                           " \n",
                       anchor="w")
         l2.grid(column=0, row=1, sticky=tk.W)
         clients_info = tk.Label(self.root, text="Active Players:")
@@ -143,73 +143,12 @@ class QuizMaster(threading.Thread):
         l3.grid(column=0, row=2, sticky=tk.W)
         l4 = tk.Label(self.root, text="PORT: " + str(self.PORT))
         l4.grid(column=0, row=3, sticky=tk.W)
-        '''l5 = tk.Label(self.root, text="Use the below form to generate your question.")
-        l5.grid(column=0, row=5, sticky=tk.W)
-
-       self.question = tk.Entry(self.root)
-        self.question.grid(column=0, row=6, columnspan=3, sticky=tk.W)
-
-        l6 = tk.Label(self.root, text="Choice 1: ")
-        l6.grid(column=0, row=7, sticky=tk.W)
-        self.choice1 = tk.Entry(self.root)
-        self.choice1.grid(column=1, row=7, columnspan=3, sticky=tk.W)
-        self.correct_option = tk.IntVar()
-        self.c1 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=1)
-        self.c1.grid(column=2, row=7)
-
-        l7 = tk.Label(self.root, text="Choice 2: ")
-        l7.grid(column=0, row=8, sticky=tk.W)
-        self.choice2 = tk.Entry(self.root)
-        self.choice2.grid(column=1, row=8, columnspan=3, sticky=tk.W)
-        self.c2 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=2)
-        self.c2.grid(column=2, row=8)
-
-        l8 = tk.Label(self.root, text="Choice 3: ")
-        l8.grid(column=0, row=9, sticky=tk.W)
-        self.choice3 = tk.Entry(self.root)
-        self.choice3.grid(column=1, row=9, columnspan=3, sticky=tk.W)
-        self.c3 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=3)
-        self.c3.grid(column=2, row=9)
-
-        l9 = tk.Label(self.root, text="Choice 4: ")
-        l9.grid(column=0, row=10, sticky=tk.W)
-        self.choice4 = tk.Entry(self.root)
-        self.choice4.grid(column=1, row=10, columnspan=3, sticky=tk.W)
-        self.c4 = tk.Radiobutton(self.root, text="Correct Answer", variable=self.correct_option, value=4)
-        self.c4.grid(column=2, row=10)'''
 
         submit_question = tk.Button(self.root, text='Send Question', command=self.sendQuestion)
         submit_question.grid(column=1, row=6, columnspan=3, sticky=tk.W)
         print("Hi here.")
         self.root.protocol("WM_DELETE_WINDOW", self.callback)
         self.root.mainloop()
-
-
-"""
-Payload:
-{
-    "type": "question",
-    "question": "How is the best?",
-    "choices": [
-        {
-            "text": "me?",
-            "value": false
-        },
-        {
-            "text": "ME?",
-            "value": false
-        },
-        {
-            "text": "ME",
-            "value": false
-        },
-        {
-            "text": "Me.",
-            "value": true
-        }
-    ]
-}
-"""
 
 
 def accept_incoming_connections():
@@ -220,7 +159,6 @@ def accept_incoming_connections():
         client.send(bytes(buildInfo("greeting", "Greetings player! Now type your name and press enter!"), "utf8"))
         addresses[client] = client_address
         Thread(target=handle_client, args=(client,)).start()
-
 
 
 def handle_client(client):  # Takes client socket as argument.
@@ -242,9 +180,13 @@ def handle_client(client):  # Takes client socket as argument.
                 msg = json.loads(msg)
                 if msg['type'] == "answer":
                     client.send(bytes(buildInfo("answer", str(quizMaster.checkAnswer(msg["answer"], name))), "utf8"))
-                    #num_of_answered += 1
-                    #if num_of_answered % 3 == 0:
                     QuizMaster.send_scoreboard()
+                if msg['type'] == 'message':
+                    message = dict()
+                    message['type'] = 'message'
+                    message['content'] = msg['content']
+                    print(message['content'])
+                    broadcast(msg=json.dumps(message))
             except Exception as e:
                 print("Incorrect Payload:", msg)
                 on_closing()
@@ -262,7 +204,7 @@ addresses = {}
 
 
 def read_questions():
-    f = open("../questions.json")
+    f = open("../questions.json",encoding="utf8")
     data_json = json.load(f)
     for question in data_json:
         questions.append(question)
@@ -287,7 +229,7 @@ questions = []
 current_question = 0
 read_questions()
 scoreboard = {}
-
+start = 0
 if __name__ == "__main__":
     SERVER.listen(5)
     print("Waiting for connection...")
