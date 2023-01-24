@@ -114,10 +114,16 @@ class QuizMaster(threading.Thread):
                 "text": q['options'][2],
                 # "value": "True" if self.correct_option == 3 else "False"
             })
-            msg['choices'].append({
-                "text": q['options'][3],
-                # "value": "True" if self.correct_option == 4 else "False"
-            })
+            if len(q['options']) == 4:
+                msg['choices'].append({
+                    "text": q['options'][3],
+                    # "value": "True" if self.correct_option == 4 else "False"
+                })
+            else:
+                msg['choices'].append({
+                    "text": "this a three choice question",
+                    # "value": "True" if self.correct_option == 4 else "False"
+                })
             broadcast(msg=json.dumps(msg))
         else:
             print('not enough participants')
@@ -129,8 +135,10 @@ class QuizMaster(threading.Thread):
         l1 = tk.Label(self.root, text="CN Quiz Project", font=("Arial Bold", 25))
         l1.grid(column=0, row=0)
         l2 = tk.Label(self.root,
-                      text="Welcome to our CN quiz project, master!\nThere is a list of question, its options, and only one "
-                           "can be correct.\nThen watch your friends try answering them.See who gets most of them Right \n"
+                      text="Welcome to our CN quiz project, master!\nThere is a list of question, its options, "
+                           "and only one"
+                           "can be correct.\nThen watch your friends try answering them.See who gets most of them "
+                           "Right \n"
                             "Developed By Hamid.R Zehtab and Ali.M Tabatabaei"
                            " \n",
                       anchor="w")
